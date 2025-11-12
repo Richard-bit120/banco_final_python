@@ -17,7 +17,7 @@ class MainWindow(QMainWindow):
     def init_ui(self):
         """Inicializa la interfaz de usuario"""
         self.setWindowTitle("Sistema Bancario")
-        self.setGeometry(100, 100, 1000, 700)
+        self.setGeometry(100, 100, 500, 350)
         
         # Crear menú principal
         self.crear_menu()
@@ -30,7 +30,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(central_widget)
         
         # Título
-        titulo = QLabel("Sistema Bancario Simplificado")
+        titulo = QLabel("SISTEMA BANCARIO 11/11/2025 - PROGRAMACION 1")
         titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
         titulo.setStyleSheet("font-size: 18pt; font-weight: bold; margin: 10px;")
         layout.addWidget(titulo)

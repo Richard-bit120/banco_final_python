@@ -286,10 +286,10 @@ class InformeMovimientosDialog(QDialog):
             
             monto_item = QTableWidgetItem(f"${mov['monto']:.2f}")
             if mov['monto'] < 0:
-                # CORRECCIÓN: Usar QColor en lugar de Qt.GlobalColor
-                monto_item.setForeground(QColor(255, 0, 0))  # Rojo
+                
+                monto_item.setForeground(QColor(255, 0, 0))  
             else:
-                monto_item.setForeground(QColor(0, 100, 0))  # Verde oscuro
+                monto_item.setForeground(QColor(0, 100, 0))  
             self.tabla_movimientos.setItem(i, 3, monto_item)
             
             self.tabla_movimientos.setItem(i, 4, QTableWidgetItem(f"${mov['saldo_final']:.2f}"))

@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
                             QLabel, QDoubleSpinBox, QDateEdit, QTextEdit)
 from PyQt6.QtCore import QDate
 from datetime import datetime, timedelta
-from models.entidades import CuentaPlazoFijo  # Importación añadida
+from models.entidades import CuentaPlazoFijo
 
 class DepositoDialog(QDialog):
     def __init__(self, banco, db, parent=None):

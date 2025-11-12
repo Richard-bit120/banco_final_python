@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
                             QTableWidgetItem, QHeaderView, QMessageBox,
                             QLabel, QSplitter)
 from PyQt6.QtCore import Qt
-from models.entidades import ClientePersona, ClienteEmpresa, CuentaCorriente  # Agregar CuentaCorriente
+from models.entidades import ClientePersona, ClienteEmpresa, CuentaCorriente
 
 class AltaClienteDialog(QDialog):
     def __init__(self, banco, db, parent=None):

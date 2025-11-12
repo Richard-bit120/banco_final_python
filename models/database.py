@@ -2,7 +2,7 @@ import sqlite3
 from datetime import datetime
 from typing import List, Dict, Any
 from .entidades import Cliente, ClientePersona, ClienteEmpresa, CuentaBase, CajaAhorro, CuentaCorriente, CuentaPlazoFijo
-from .banco import Banco  # Importación añadida
+from .banco import Banco
 
 class DatabaseManager:
     """Gestor de base de datos SQLite para el sistema bancario"""
@@ -145,7 +145,7 @@ class DatabaseManager:
         except sqlite3.Error:
             return False
     
-    def cargar_cuentas(self, banco: Banco) -> List[CuentaBase]:  # CORREGIDO: Banco ahora está importado
+    def cargar_cuentas(self, banco: Banco) -> List[CuentaBase]: 
         """Carga todas las cuentas de la base de datos"""
         cuentas = []
         try:
