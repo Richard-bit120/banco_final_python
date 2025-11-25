@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
                             QLabel, QDoubleSpinBox)
 from PyQt6.QtCore import Qt
 from models.entidades import CajaAhorro, CuentaCorriente, CuentaPlazoFijo
+from controllers.utils import generar_numeros_cuenta
 
 class AltaCuentaDialog(QDialog):
     def __init__(self, banco, db, parent=None):
@@ -11,7 +12,13 @@ class AltaCuentaDialog(QDialog):
         self.banco = banco
         self.db = db
         self.init_ui()
-    
+        self.generar_y_mostrar_numero()
+        
+    def generar_y_mostrar_numero(self) ->None:
+        nuevo_numero = generar_numeros_cuenta()
+        self.numero_input.setText(nuevo_numero)
+        self.numero_input.setReadOnly(True)
+        
     def init_ui(self):
         self.setWindowTitle("Alta de Cuenta")
         self.setModal(True)
