@@ -4,14 +4,14 @@ from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
                             QFileDialog, QDoubleSpinBox, QLineEdit)
 from PyQt6.QtCore import QDate
 from PyQt6.QtGui import QColor
-from datetime import datetime, time
+from datetime import datetime
 import csv
 from models.entidades import CajaAhorro, CuentaCorriente, CuentaPlazoFijo
 
 class InformeGeneralDialog(QDialog):
-    def __init__(self, controlador=None, parent=None):
+    def __init__(self, banco, parent=None):
         super().__init__(parent)
-        self.controlador = controlador
+        self.banco = banco
         self.init_ui()
     
     def init_ui(self):
@@ -116,9 +116,9 @@ class InformeGeneralDialog(QDialog):
                 QMessageBox.warning(self, "Error", f"No se pudo exportar el informe: {str(e)}")
 
 class InformePlazoFijoDialog(QDialog):
-    def __init__(self, controlador = None, parent=None):
+    def __init__(self, banco, parent=None):
         super().__init__(parent)
-        self.controlador = controlador
+        self.banco = banco
         self.init_ui()
     
     def init_ui(self):
@@ -199,7 +199,7 @@ class InformePlazoFijoDialog(QDialog):
                 QMessageBox.warning(self, "Error", f"No se pudo exportar: {str(e)}")
 
 class InformeMovimientosDialog(QDialog):
-    def __init__(self, controlador=None, parent=None):
+    def __init__(self, banco, db, parent=None):
         super().__init__(parent)
         self.banco = banco
         self.db = db
@@ -208,7 +208,7 @@ class InformeMovimientosDialog(QDialog):
     def init_ui(self):
         self.setWindowTitle("Informe de Movimientos")
         self.setModal(True)
-        self.resize(700, 400)
+        self.resize(900, 600)
         
         layout = QVBoxLayout(self)
         
@@ -217,9 +217,8 @@ class InformeMovimientosDialog(QDialog):
         
         self.cuenta_combo = QComboBox()
         self.cuenta_combo.addItem("Todas las cuentas", None)
-        if self.controlador:
-            for cuenta in self.banco.obtener_cuentas():
-                self.cuenta_combo.addItem(f"{cuenta.numero} - {cuenta.titular.nombre}", cuenta.numero)
+        for cuenta in self.banco.obtener_cuentas():
+            self.cuenta_combo.addItem(f"{cuenta.numero} - {cuenta.titular.nombre}", cuenta.numero)
         
         self.tipo_combo = QComboBox()
         self.tipo_combo.addItem("Todos los tipos", None)
@@ -268,43 +267,35 @@ class InformeMovimientosDialog(QDialog):
         self.filtrar_movimientos()
     
     def filtrar_movimientos(self):
-        try:
-            cuenta = self.cuenta_combo.currentData()
-            tipo = self.tipo_combo.currentData()
-            fecha_desde = datetime.combine(self.fecha_desde.date().toPyDate(), time.min)
-            fecha_hasta = datetime.combine(self.fecha_hasta.date().toPyDate(), time.max)
-
-            if self.controlador:
-                movimientos = self.controlador.obtener_movimientos (numero_cuenta = cuenta,fecha_desde = fecha_desde, fecha_hasta = fecha_hasta, tipo_movimiento = tipo)
-            else:
-                QMessageBox.warning(self, "Error", "Controlador no disponible")
-                return
-
-            self.tabla_movimientos.setRowCount(len(movimientos))
-
-            for i, mov in enumerate(movimientos):
-                self.tabla_movimientos.setItem(i, 0, QTableWidgetItem(mov['fecha'].strftime("%d/%m/%Y %H:%M")))
-                self.tabla_movimientos.setItem(i, 1, QTableWidgetItem(mov['numero_cuenta']))
-                self.tabla_movimientos.setItem(i, 2, QTableWidgetItem(mov['tipo']))
-
-                monto_item = QTableWidgetItem(f"${mov['monto']:.2f}")
-                if mov['monto'] < 0:
-
-                    monto_item.setForeground(QColor(255, 0, 0))  
-                else:
-                    monto_item.setForeground(QColor(0, 100, 0))  
-                self.tabla_movimientos.setItem(i, 3, monto_item)
-
-                self.tabla_movimientos.setItem(i, 4, QTableWidgetItem(f"${mov['saldo_final']:.2f}"))
-
-            self.tabla_movimientos.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-
-            if len(movimientos) == 0:
-                QMessageBox.information(self, "Sin resultados", "No se encontraron movimientos con los filtros aplicados.")
+        cuenta = self.cuenta_combo.currentData()
+        tipo = self.tipo_combo.currentData()
+        fecha_desde = self.fecha_desde.date().toPyDate()
+        fecha_hasta = self.fecha_hasta.date().toPyDate()
+        
+        movimientos = self.db.cargar_movimientos(cuenta, fecha_desde, fecha_hasta)
+        
+        if tipo:
+            movimientos = [m for m in movimientos if m['tipo'] == tipo]
+        
+        self.tabla_movimientos.setRowCount(len(movimientos))
+        
+        for i, mov in enumerate(movimientos):
+            self.tabla_movimientos.setItem(i, 0, QTableWidgetItem(mov['fecha'].strftime("%d/%m/%Y %H:%M")))
+            self.tabla_movimientos.setItem(i, 1, QTableWidgetItem(mov['numero_cuenta']))
+            self.tabla_movimientos.setItem(i, 2, QTableWidgetItem(mov['tipo']))
             
-        except Exception as e:
-            QMessageBox.information(self, "Sin resultados", "No se encontraron movimientos con los filtros aplicados.")
-
+            monto_item = QTableWidgetItem(f"${mov['monto']:.2f}")
+            if mov['monto'] < 0:
+                
+                monto_item.setForeground(QColor(255, 0, 0))  
+            else:
+                monto_item.setForeground(QColor(0, 100, 0))  
+            self.tabla_movimientos.setItem(i, 3, monto_item)
+            
+            self.tabla_movimientos.setItem(i, 4, QTableWidgetItem(f"${mov['saldo_final']:.2f}"))
+        
+        self.tabla_movimientos.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+    
     def exportar_csv(self):
         filename, _ = QFileDialog.getSaveFileName(
             self, "Exportar CSV", "movimientos.csv", "CSV Files (*.csv)"

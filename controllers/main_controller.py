@@ -338,13 +338,11 @@ class MainController(QObject):
                           tipo_movimiento: str = None):
         """Obtiene movimientos con filtros opcionales"""
         try:
-            print(f"Obtener movimientos - Cuenta: {numero_cuenta}, Desde: {fecha_desde}, Hasta: {fecha_hasta}, Tipo: {tipo_movimiento}")
             movimientos = self.db.cargar_movimientos(numero_cuenta, fecha_desde, fecha_hasta)
             
             if tipo_movimiento:
                 movimientos = [m for m in movimientos if m['tipo'] == tipo_movimiento]
             
-            print(f"Movimientos encontrados: {len(movimientos)}")
             return movimientos
         except Exception as e:
             self.error_occurred.emit(f"Error obteniendo movimientos: {str(e)}")
