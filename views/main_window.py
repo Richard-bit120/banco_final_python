@@ -273,7 +273,7 @@ class MainWindow(QMainWindow):
     
     def mostrar_informe_movimientos(self):
         from .informes_window import InformeMovimientosDialog
-        dialog = InformeMovimientosDialog(self.controller.banco, self.controller.db, self)
+        dialog = InformeMovimientosDialog(controlador=self.controlador, parent= self)
         dialog.exec()
     
     def mostrar_configuracion(self):

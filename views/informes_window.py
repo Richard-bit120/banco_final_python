@@ -9,9 +9,9 @@ import csv
 from models.entidades import CajaAhorro, CuentaCorriente, CuentaPlazoFijo
 
 class InformeGeneralDialog(QDialog):
-    def __init__(self, banco, parent=None):
+    def __init__(self, controlador=None, parent=None):
         super().__init__(parent)
-        self.banco = banco
+        self.controlador = controlador
         self.init_ui()
     
     def init_ui(self):
@@ -116,9 +116,9 @@ class InformeGeneralDialog(QDialog):
                 QMessageBox.warning(self, "Error", f"No se pudo exportar el informe: {str(e)}")
 
 class InformePlazoFijoDialog(QDialog):
-    def __init__(self, banco, parent=None):
+    def __init__(self, controlador = None, parent=None):
         super().__init__(parent)
-        self.banco = banco
+        self.controlador = controlador
         self.init_ui()
     
     def init_ui(self):
@@ -274,10 +274,11 @@ class InformeMovimientosDialog(QDialog):
             fecha_desde = datetime.combine(self.fecha_desde.date().toPyDate(), time.min)
             fecha_hasta = datetime.combine(self.fecha_hasta.date().toPyDate(), time.max)
 
-            movimientos = self.controlador.obtener_movimientos(cuenta, fecha_desde, fecha_hasta)
-
-            if tipo:
-                movimientos = [m for m in movimientos if m['tipo'] == tipo]
+            if self.controlador:
+                movimientos = self.controlador.obtener_movimientos (numero_cuenta = cuenta,fecha_desde = fecha_desde, fecha_hasta = fecha_hasta, tipo_movimiento = tipo)
+            else:
+                QMessageBox.warning(self, "Error", "Controlador no disponible")
+                return
 
             self.tabla_movimientos.setRowCount(len(movimientos))
 
@@ -297,7 +298,10 @@ class InformeMovimientosDialog(QDialog):
                 self.tabla_movimientos.setItem(i, 4, QTableWidgetItem(f"${mov['saldo_final']:.2f}"))
 
             self.tabla_movimientos.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        
+
+            if len(movimientos) == 0:
+                QMessageBox.information(self, "Sin resultados", "No se encontraron movimientos con los filtros aplicados.")
+            
         except Exception as e:
             QMessageBox.information(self, "Sin resultados", "No se encontraron movimientos con los filtros aplicados.")
 
