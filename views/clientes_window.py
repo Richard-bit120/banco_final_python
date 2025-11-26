@@ -127,7 +127,7 @@ class ListaClientesDialog(QDialog):
     
         dni = self.tabla_clientes.item(fila, 0).text()
         cliente = self.banco.buscar_cliente(dni)
-    
+        
         if cliente:
             dialog = EditarClienteDialog(cliente, self.banco, self.db, self)
             if dialog.exec():
